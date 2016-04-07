@@ -111,12 +111,63 @@
                                                           ,
                                                         <% end %>
                                                       <% end %>
+                    <li>Contributions last year: <%= api_service(current_user).contributions_last_year %>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- /.row -->
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <p class="lead">Recent Activity</p>
+                <ul class="list-styled">
+                  <li>Recent commits: <% api_service(current_user).recent_commits.each do |repo| %>
+                                          <%= repo[0] %>: <%= repo[1] %>
+                                          <br>
+                                        <% end %>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- /.row -->
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <p class="lead">Recent Activity from Followed Users</p>
+                <ul class="list-styled">
+                    <li>Commits:   <% @contributions.each do |contribution| %>
+                                                        <%= contribution["name"]%>
+                                                        <% if contribution["name"] != @contributions.last["name"] %>
+                                                          ,
+                                                        <% end %>
+                                                      <% end %>
+                    <li>Recent commits: <%= api_service(current_user).following_commits %>
+                    </li>
+                    <li>Repos they contributed to:  <% @starred.each do |repo| %>
+                                      <%= repo["full_name"] %>
+                                      <!-- and user name -->
+                                    <% end %>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- /.row -->
+        <!-- /.row -->
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <p class="lead">Organizations</p>
+                <ul class="list-styled">
+                    <li>Belong to:   <% @contributions.each do |contribution| %>
+                                                        <%= contribution["name"]%>
+                                                        <% if contribution["name"] != @contributions.last["name"] %>
+                                                          ,
+                                                        <% end %>
+                                                      <% end %>
                 </ul>
             </div>
         </div>
         <!-- /.row -->
 
-    </div>
+      </div>
     <!-- /.container -->
 
     <!-- jQuery Version 1.11.1 -->

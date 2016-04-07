@@ -28,8 +28,53 @@ class ApiService
     JSON.parse(connection.get("/users/#{@name}/starred", symbolize_names: true).body)
   end
 
-  def contributions
-    JSON.parse(connection.get("/search/repositories?q=%20+fork:true+user:#{@name}").body)["items"]
+  def contribution_repos
+    # JSON.parse(connection.get("/search/repositories?q=%20+fork:true+user:#{@name}").body)["items"]
+    JSON.parse(connection.get("/users/#{@name}/repos").body)
+  end
+
+  def contributions_last_year
+    repos = contribution_repos
+    contributions = repos.map do |repo|
+      JSON.parse(connection.get("/repos/#{@name}/#{repo["name"]}/stats/participation").body)["all"]
+    end
+    contributions = contributions.drop(1)
+    contributions = contributions[0...-1]
+    contributions = contributions.flatten
+    contributions.reduce(:+)
+  end
+
+  def recent_commits
+    repos = contribution_repos
+    recent_repos = ["APICurious_github", "My_Coffee_Order_refactor", "AerospaceCC"]
+    repo_hash = Hash.new
+    repos.each_with_index do |repo, index|
+      if recent_repos.include?(repo["name"])
+        value = JSON.parse(connection.get("/repos/#{@name}/#{repo["name"]}/stats/commit_activity").body)
+        sum_total = value.each.inject(0) do |sum, (k, v)|
+          sum += k["total"]
+        end
+        repo_hash[repo["name"]] = sum_total
+      end
+    end
+    return repo_hash
+  end
+
+  def following_commits
+    recent_repos = Array.new
+    following.each do |follower|
+      recent_repos = JSON.parse(connection.get("/users/#{follower["login"]}/repos").body)
+    end
+    repo_hash = Hash.new
+    recent_repos.first(5).each_with_index do |repo, index|
+      value = JSON.parse(connection.get("/repos/#{repo["owner"]["login"]}/#{repo["name"]}/stats/commit_activity").body)
+      sum_total = value.each.inject(0) do |sum, (k, v)|
+        sum += k["total"]
+      end
+      repo_hash[repo["name"]] = sum_total
+    end
+    binding.pry
+    return repo_hash
   end
 
 
